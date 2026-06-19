@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpunk Drone Lab - Interactive Graphics Project</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #020205; font-family: sans-serif; color: #00ffcc; }
+        #canvas-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
+        #hud-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 20px; }
+        .interactive { pointer-events: auto; }
+        .hud-panel { background: rgba(5, 5, 20, 0.85); border: 1px solid #00ffcc; box-shadow: 0 0 15px rgba(0, 255, 204, 0.4); border-radius: 4px; padding: 15px; backdrop-filter: blur(6px); }
+        header h1 { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 8px #00ffcc; }
+        header p { font-size: 0.8rem; color: #ff0055; text-transform: uppercase; }
+        #telemetry-panel { width: 300px; font-family: monospace; }
+        .telemetry-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .telemetry-value { color: #fff; }
+        #controls-panel { position: absolute; right: 20px; top: 20px; width: 260px; }
+        .control-group { margin-top: 15px; }
+        .control-group label { display: block; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 5px; color: #ff0055; }
+        .flight-manual { font-size: 0.75rem; color: #aaa; font-family: monospace; line-height: 1.4; margin-top: 10px; border-top: 1px dashed #333; padding-top: 10px; }
+        .key { color: #00ffcc; font-weight: bold; }
+        .btn { background: transparent; border: 1px solid #ff0055; color: #ff0055; padding: 8px 12px; width: 100%; cursor: pointer; text-transform: uppercase; font-weight: bold; transition: all 0.2s ease; margin-bottom: 5px; }
+        .btn:hover { background: #ff0055; color: #000; box-shadow: 0 0 10px #ff0055; }
+        input[type=range] { width: 100%; margin-top: 5px; accent-color: #00ffcc; cursor: pointer; }
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #05050a; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
+        .spinner { width: 50px; height: 50px; border: 3px solid rgba(0, 255, 204, 0.1); border-radius: 50%; border-top-color: #00ffcc; animation: spin 1s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="margin-top: 20px; letter-spacing: 3px; font-size: 0.9rem;">INITIALIZING SIMULATION ENVIRONMENT...</p>
+    </div>
+
+    <!-- GAME OVER OVERLAY -->
+    <div id="gameover-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:50;background:rgba(0,0,0,0.8);display:none;flex-direction:column;justify-content:center;align-items:center;pointer-events:none;">
+        <div style="background:rgba(5,5,20,0.95);border:2px solid #ff0055;border-radius:8px;padding:40px 60px;text-align:center;box-shadow:0 0 60px rgba(255,0,85,0.3);">
+            <h1 style="font-size:2.8rem;color:#ff0055;text-shadow:0 0 30px #ff0055;margin-bottom:5px;">TIME'S UP</h1>
+            <p style="font-size:1rem;color:#888;margin-bottom:15px;font-family:monospace;">// TRANSMISSION ENDED //</p>
+            <div style="border-top:1px solid #333;border-bottom:1px solid #333;padding:15px 0;margin:10px 0;">
+                <p style="font-size:1.1rem;color:#fff;margin:5px 0;">Rings Collected: <span id="go-rings" style="color:#00ffcc;">0</span></p>
+                <p style="font-size:1.1rem;color:#fff;margin:5px 0;"><span id="go-bonus" style="color:#666;">+0 battery bonus</span></p>
+            </div>
+            <p style="font-size:2rem;color:#00ffcc;margin:15px 0;font-weight:bold;text-shadow:0 0 15px #00ffcc;">SCORE: <span id="go-score">0</span></p>
+            <p id="go-newrecord" style="font-size:1rem;color:#ffff00;margin:5px 0;text-shadow:0 0 10px #ffff00;">★ NEW HIGH SCORE! ★</p>
+            <p style="font-size:0.9rem;color:#aaa;margin-top:18px;">Press <span class="key">R</span> to restart</p>
+        </div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div id="hud-container">
+        <header class="hud-panel interactive">
+            <h1>⚡ TIME ATTACK</h1>
+            <p>[: : COLLECT RINGS — BEAT THE CLOCK : :]</p>
+        </header>
+
+        <div id="controls-panel" class="hud-panel interactive">
+            <h3>LAB CONTROLS</h3>
+            <div class="control-group">
+                <label>Engine System</label>
+                <button class="btn" id="btn-power">[ SPACE ] Start Ignition</button>
+            </div>
+            <div class="control-group">
+                <label>Camera Perspective</label>
+                <button class="btn" id="btn-camera" style="border-color:#00ffcc; color:#00ffcc;">[ C ] View: Orbit Lab</button>
+            </div>
+            <div class="control-group">
+                <label>Rotor Throttle Limit: <span id="val-throttle-display">100%</span></label>
+                <input type="range" id="slider-throttle" min="20" max="250" value="100">
+            </div>
+            <div class="control-group">
+                <label>Lighting Array</label>
+                <button class="btn" id="btn-light" style="border-color:#00ffcc; color:#00ffcc;">Toggle Deck Lights</button>
+            </div>
+            <div class="control-group">
+                <label>Difficulty</label>
+                <div style="display:flex; gap:4px;">
+                    <button class="btn" id="btn-diff-easy" style="border-color:#00ffcc; color:#00ffcc; flex:1; font-size:0.7rem; padding:6px;">EASY</button>
+                    <button class="btn" id="btn-diff-normal" style="border-color:#ff0055; color:#ff0055; flex:1; font-size:0.7rem; padding:6px; background:#ff005522;">NORMAL</button>
+                    <button class="btn" id="btn-diff-hard" style="border-color:#ff0000; color:#ff0000; flex:1; font-size:0.7rem; padding:6px;">HARD</button>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>Drone Color</label>
+                <div style="display:flex; gap:4px;">
+                    <button class="btn" id="btn-color-cyan" style="border-color:#00ffcc; color:#00ffcc; flex:1; font-size:0.7rem; padding:6px; background:#00ffcc22;">CYAN</button>
+                    <button class="btn" id="btn-color-magenta" style="border-color:#ff0055; color:#ff0055; flex:1; font-size:0.7rem; padding:6px;">MAGENTA</button>
+                    <button class="btn" id="btn-color-gold" style="border-color:#ffaa00; color:#ffaa00; flex:1; font-size:0.7rem; padding:6px;">GOLD</button>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>Simulation</label>
+                <button class="btn" id="btn-reset" style="border-color:#ff0055; color:#ff0055;">[ R ] Reset Simulation</button>
+            </div>
+            <div class="flight-manual">
+                <p><strong>FLIGHT DECK MANUAL:</strong></p>
+                <p><span class="key">W / ↑</span> <span class="key">S / ↓</span> : Forward / Back</p>
+                <p><span class="key">A / ←</span> <span class="key">D / →</span> : Strafe Left / Right</p>
+                <p><span class="key">Q</span> : Ascend  <span class="key">E</span> : Descend</p>
+                <p style="margin-top:6px;color:#00ffcc;">⏱ 45s — score fast for combos!</p>
+                <p style="margin-top:4px;color:#ff0055;">✖ Hitting pillars: −500 pts −10% battery</p>
+                <p style="margin-top:4px;color:#666;"><span class="key">ESC</span> : Kill Engine</p>
+            </div>
+        </div>
+
+        <footer id="telemetry-panel" class="hud-panel interactive">
+            <div class="telemetry-row">
+                <span>ALTITUDE:</span>
+                <span class="telemetry-value" id="val-altitude">0.00 m</span>
+            </div>
+            <div class="telemetry-row">
+                <span>ROTOR RPM:</span>
+                <span class="telemetry-value" id="val-rpm">0 RPM</span>
+            </div>
+            <div class="telemetry-row">
+                <span>BATTERY CORE:</span>
+                <span class="telemetry-value" id="val-battery" style="color: #00ffcc;">100%</span>
+            </div>
+            <div class="telemetry-row">
+                <span>SCORE:</span>
+                <span class="telemetry-value" id="val-score" style="color:#00ffcc;">0</span>
+            </div>
+            <div class="telemetry-row">
+                <span>RINGS:</span>
+                <span class="telemetry-value" id="val-rings">0 / 3</span>
+            </div>
+            <div class="telemetry-row">
+                <span>TIME LEFT:</span>
+                <span class="telemetry-value" id="val-timer" style="font-weight:bold;">0:45</span>
+            </div>
+            <div class="telemetry-row">
+                <span>COMBO:</span>
+                <span class="telemetry-value" id="val-combo" style="color:#ff8800;"></span>
+            </div>
+            <div class="telemetry-row">
+                <span>HIGH SCORE:</span>
+                <span class="telemetry-value" id="val-highscore">0</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="shaders.js"></script>
+    <script src="sceneconfig.js"></script>
+    <script src="drone.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
