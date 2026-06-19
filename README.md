@@ -66,6 +66,10 @@ Simply open `index.html` in any modern web browser
 
 No build tools, servers, or installations required — everything runs from CDN-loaded Three.js and plain JavaScript.
 
+#OR
+**Click on this link:
+* https://sapienzainteractivegraphicscourse.github.io/final-project-burntships/
+
 ### Internet Requirements
 
 The project loads the following libraries from CDN:
