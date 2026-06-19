@@ -11,9 +11,6 @@ let ringsScored = 0;
 let timerRunning = false;
 let missionComplete = false;
 let burstParticles = [];
-let currentDifficulty = 'normal'; // 'easy', 'normal', 'hard'
-let batteryDrainRate = 0.003;
-let columnPenalty = 500;
 
 // === TIME ATTACK MODE ===
 const TIME_LIMIT = 45;        // countdown from 45 seconds
@@ -171,24 +168,6 @@ function setupInteractions() {
 
     // Reset simulation button
     document.getElementById('btn-reset').addEventListener('click', resetSimulation);
-
-    // ===== DIFFICULTY SELECTOR =====
-    function setDifficulty(diff) {
-        currentDifficulty = diff;
-        // Visually highlight active button
-        ['easy', 'normal', 'hard'].forEach(d => {
-            const btn = document.getElementById(`btn-diff-${d}`);
-            if (btn) btn.style.background = d === diff ? `${d === 'easy' ? '#00ffcc' : d === 'normal' ? '#ff0055' : '#ff0000'}22` : 'transparent';
-        });
-        // Adjust game parameters
-        if (diff === 'easy') { batteryDrainRate = 0.002; columnPenalty = 300; }
-        else if (diff === 'normal') { batteryDrainRate = 0.003; columnPenalty = 500; }
-        else { batteryDrainRate = 0.005; columnPenalty = 800; }
-    }
-    ['easy', 'normal', 'hard'].forEach(d => {
-        const btn = document.getElementById(`btn-diff-${d}`);
-        if (btn) btn.addEventListener('click', () => setDifficulty(d));
-    });
 
     // ===== DRONE COLOR CONFIGURATION =====
     function setDroneColor(colorName, hexColor, emissiveHex) {
@@ -499,7 +478,7 @@ function animateLoop() {
     
     // --- Column collision penalty ---
     if (drone.hitColumn && timerRunning && !gameOver) {
-        score = Math.max(0, score - columnPenalty);
+        score = Math.max(0, score - 500);
         document.getElementById('val-score').innerText = score.toString();
         
         // Drain battery on hit
@@ -631,7 +610,7 @@ function animateLoop() {
     if (drone.engineRunning) {
         const curBat = parseFloat(document.getElementById('val-battery').innerText);
         if (curBat > 0) {
-            const drainageRate = batteryDrainRate * (drone.rotorSpeed / 0.4);
+            const drainageRate = 0.003 * (drone.rotorSpeed / 0.4);
             document.getElementById('val-battery').innerText = `${(curBat - drainageRate).toFixed(1)}%`;
         }
         const batVal = parseFloat(document.getElementById('val-battery').innerText);
