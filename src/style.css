@@ -1,0 +1,271 @@
+/* ===== Cyberpunk Drone Lab — HUD Styles ===== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #020205;
+  font-family: sans-serif;
+  color: #00ffcc;
+}
+
+/* ===== THREE.JS CANVAS ===== */
+#canvas-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* ===== HUD OVERLAY ===== */
+#hud-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.interactive {
+  pointer-events: auto;
+}
+
+.hud-panel {
+  background: rgba(5, 5, 20, 0.85);
+  border: 1px solid #00ffcc;
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+  border-radius: 4px;
+  padding: 15px;
+  backdrop-filter: blur(6px);
+}
+
+/* ===== HEADER ===== */
+header h1 {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px #00ffcc;
+}
+
+header p {
+  font-size: 0.8rem;
+  color: #ff0055;
+  text-transform: uppercase;
+}
+
+/* ===== TELEMETRY ===== */
+#telemetry-panel {
+  width: 300px;
+  font-family: monospace;
+}
+
+.telemetry-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.telemetry-value {
+  color: #fff;
+}
+
+/* ===== CONTROLS PANEL ===== */
+#controls-panel {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 260px;
+}
+
+.control-group {
+  margin-top: 15px;
+}
+
+.control-group label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  color: #ff0055;
+}
+
+.btn-row {
+  display: flex;
+  gap: 4px;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  background: transparent;
+  border: 1px solid #ff0055;
+  color: #ff0055;
+  padding: 8px 12px;
+  width: 100%;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  margin-bottom: 5px;
+}
+
+.btn:hover {
+  background: #ff0055;
+  color: #000;
+  box-shadow: 0 0 10px #ff0055;
+}
+
+.btn-sm {
+  flex: 1;
+  font-size: 0.7rem;
+  padding: 6px;
+  margin-bottom: 0;
+}
+
+/* ===== SLIDER ===== */
+input[type="range"] {
+  width: 100%;
+  margin-top: 5px;
+  accent-color: #00ffcc;
+  cursor: pointer;
+}
+
+/* ===== FLIGHT MANUAL ===== */
+.flight-manual {
+  font-size: 0.75rem;
+  color: #aaa;
+  font-family: monospace;
+  line-height: 1.4;
+  margin-top: 10px;
+  border-top: 1px dashed #333;
+  padding-top: 10px;
+}
+
+.key {
+  color: #00ffcc;
+  font-weight: bold;
+}
+
+/* ===== LOADER ===== */
+#loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #05050a;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s ease;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(0, 255, 204, 0.1);
+  border-radius: 50%;
+  border-top-color: #00ffcc;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== GAME OVER OVERLAY ===== */
+#gameover-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.8);
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+#gameover-box {
+  background: rgba(5, 5, 20, 0.95);
+  border: 2px solid #ff0055;
+  border-radius: 8px;
+  padding: 40px 60px;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(255, 0, 85, 0.3);
+}
+
+#go-title {
+  font-size: 2.8rem;
+  color: #ff0055;
+  text-shadow: 0 0 30px #ff0055;
+  margin-bottom: 5px;
+}
+
+#go-subtitle {
+  font-size: 1rem;
+  color: #888;
+  margin-bottom: 15px;
+  font-family: monospace;
+}
+
+#go-stats {
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+  padding: 15px 0;
+  margin: 10px 0;
+}
+
+#go-stats p {
+  font-size: 1.1rem;
+  color: #fff;
+  margin: 5px 0;
+}
+
+.go-highlight {
+  color: #00ffcc;
+}
+
+.go-dim {
+  color: #666;
+}
+
+#go-final-score {
+  font-size: 2rem;
+  color: #00ffcc;
+  margin: 15px 0;
+  font-weight: bold;
+  text-shadow: 0 0 15px #00ffcc;
+}
+
+#go-newrecord {
+  font-size: 1rem;
+  color: #ffff00;
+  margin: 5px 0;
+  text-shadow: 0 0 10px #ffff00;
+}
+
+#go-hint {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-top: 18px;
+}
