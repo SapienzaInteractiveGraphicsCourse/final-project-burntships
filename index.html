@@ -1,13 +1,134 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>drone-lab</title>
-  </head>
-  <body>
-    <div id="app"></div>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Cyberpunk Drone Lab — Interactive Graphics Project</title>
+</head>
+<body>
+
+    <!-- ===== LOADER ===== -->
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="margin-top:20px;letter-spacing:3px;font-size:0.9rem;">INITIALIZING SIMULATION ENVIRONMENT...</p>
+    </div>
+
+    <!-- ===== GAME OVER OVERLAY ===== -->
+    <div id="gameover-overlay">
+        <div id="gameover-box">
+            <h1 id="go-title">TIME'S UP</h1>
+            <p id="go-subtitle">// TRANSMISSION ENDED //</p>
+            <div id="go-stats">
+                <p>Rings Collected: <span id="go-rings" class="go-highlight">0</span></p>
+                <p><span id="go-bonus" class="go-dim">+0 battery bonus</span></p>
+            </div>
+            <p id="go-final-score">SCORE: <span id="go-score">0</span></p>
+            <p id="go-newrecord" style="display:none;">★ NEW HIGH SCORE! ★</p>
+            <p id="go-hint">Press <span class="key">R</span> to restart</p>
+        </div>
+    </div>
+
+    <!-- ===== THREE.JS CANVAS ===== -->
+    <div id="canvas-container"></div>
+
+    <!-- ===== HUD OVERLAY ===== -->
+    <div id="hud-container">
+
+        <!-- TOP HEADER -->
+        <header id="hud-header" class="hud-panel interactive">
+            <h1>⚡ TIME ATTACK</h1>
+            <p>[: : COLLECT RINGS — BEAT THE CLOCK : :]</p>
+        </header>
+
+        <!-- RIGHT CONTROLS PANEL -->
+        <div id="controls-panel" class="hud-panel interactive">
+            <h3>LAB CONTROLS</h3>
+
+            <div class="control-group">
+                <label>Engine System</label>
+                <button class="btn" id="btn-power">[ SPACE ] Start Ignition</button>
+            </div>
+
+            <div class="control-group">
+                <label>Camera Perspective</label>
+                <button class="btn" id="btn-camera" style="border-color:#00ffcc;color:#00ffcc;">[ C ] View: Follow Drone</button>
+            </div>
+
+            <div class="control-group">
+                <label>Rotor Throttle Limit: <span id="val-throttle-display">x1.0</span></label>
+                <input type="range" id="slider-throttle" min="20" max="250" value="100" />
+            </div>
+
+            <div class="control-group">
+                <label>Lighting Array</label>
+                <button class="btn" id="btn-light" style="border-color:#00ffcc;color:#00ffcc;">Toggle Deck Lights</button>
+            </div>
+
+            <div class="control-group">
+                <label>Drone Color</label>
+                <div class="btn-row">
+                    <button class="btn btn-sm" id="btn-color-cyan" style="border-color:#00ffff;color:#00ffff;background:#00ffff44;">CYAN</button>
+                    <button class="btn btn-sm" id="btn-color-magenta" style="border-color:#ff00aa;color:#ff00aa;">MAGENTA</button>
+                    <button class="btn btn-sm" id="btn-color-gold" style="border-color:#ffdd00;color:#ffdd00;">GOLD</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Simulation</label>
+                <button class="btn" id="btn-reset" style="border-color:#ff0055;color:#ff0055;">[ R ] Reset Simulation</button>
+            </div>
+
+            <div class="flight-manual">
+                <p><strong>FLIGHT DECK MANUAL:</strong></p>
+                <p><span class="key">W / ↑</span> <span class="key">S / ↓</span> : Forward / Back</p>
+                <p><span class="key">A / ←</span> <span class="key">D / →</span> : Strafe Left / Right</p>
+                <p><span class="key">Q</span> : Ascend &nbsp; <span class="key">E</span> : Descend</p>
+                <p style="margin-top:6px;color:#00ffcc;">⏱ 45s — score fast for combos!</p>
+                <p style="margin-top:4px;color:#ff0055;">✖ Hitting pillars: −500 pts −10% battery</p>
+                <p style="margin-top:4px;color:#666;"><span class="key">ESC</span> : Kill Engine</p>
+            </div>
+        </div>
+
+        <!-- BOTTOM TELEMETRY PANEL -->
+        <footer id="telemetry-panel" class="hud-panel interactive">
+            <div class="telemetry-row">
+                <span>ALTITUDE:</span>
+                <span class="telemetry-value" id="val-altitude">0.00 m</span>
+            </div>
+            <div class="telemetry-row">
+                <span>ROTOR RPM:</span>
+                <span class="telemetry-value" id="val-rpm">0 RPM</span>
+            </div>
+            <div class="telemetry-row">
+                <span>BATTERY CORE:</span>
+                <span class="telemetry-value" id="val-battery" style="color:#00ffcc;">100%</span>
+            </div>
+            <div class="telemetry-row">
+                <span>SCORE:</span>
+                <span class="telemetry-value" id="val-score" style="color:#00ffcc;">0</span>
+            </div>
+            <div class="telemetry-row">
+                <span>RINGS:</span>
+                <span class="telemetry-value" id="val-rings">0 / 3</span>
+            </div>
+            <div class="telemetry-row">
+                <span>TIME LEFT:</span>
+                <span class="telemetry-value" id="val-timer" style="font-weight:bold;">0:45</span>
+            </div>
+            <div class="telemetry-row">
+                <span>COMBO:</span>
+                <span class="telemetry-value" id="val-combo" style="color:#ff8800;"></span>
+            </div>
+            <div class="telemetry-row">
+                <span>HIGH SCORE:</span>
+                <span class="telemetry-value" id="val-highscore">0</span>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- ===== ES MODULE ENTRY ===== -->
     <script type="module" src="/src/main.js"></script>
-  </body>
+</body>
 </html>
