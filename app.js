@@ -1,8 +1,3 @@
-/**
- * App Module - Partner A
- * Core Engine Initialization, Input Routers, and Perspective Switchers
- */
-
 let scene, camera, renderer, controls, drone;
 let lastFrameTime = performance.now();
 const activeKeys = {};
@@ -52,20 +47,20 @@ function initEngine() {
     controls.dampingFactor = 0.05;
     controls.maxPolarAngle = Math.PI / 2 - 0.05;
 
-    // Load Partner B's environmental setup modules natively
+    
     setupLightingArray();
     setupLabEnvironment();
     setupObstacleCourse();
-    // Initialize rings display
+    
     if (document.getElementById('val-rings') && obstacleData && obstacleData.rings) {
         document.getElementById('val-rings').innerText = `0 / ${obstacleData.rings.length}`;
     }
 
-    // Instantiate our hierarchical drone object model
+    
     drone = new CyberpunkDrone();
     scene.add(drone.mesh);
 
-    // Set initial camera button text (default is Follow mode)
+    
     document.getElementById('btn-camera').innerText = "[ C ] View: Follow Drone";
     controls.enabled = false;
 
@@ -161,7 +156,7 @@ function setupInteractions() {
     });
     window.addEventListener('keyup', (e) => { activeKeys[e.key.toLowerCase()] = false; });
 
-    // Handle deck lights toggle switch directly out of Partner B's configuration array
+   
     document.getElementById('btn-light').addEventListener('click', () => {
         deckLights.forEach(light => light.visible = !light.visible);
     });
@@ -352,10 +347,7 @@ function processFlightInputs() {
     if (activeKeys['e']) drone.targetVelocity.y = -thrustForce * 0.6;
 }
 
-/**
- * Handles viewpoint matrix configurations based on the camera state machine
- * Follow mode: responsive chase cam, no lag, dynamic speed feel
- */
+
 function manageCameraPerspectives() {
     const activeMode = cameraModes[currentCameraModeIndex];
     if (activeMode === 'orbit') {
@@ -364,22 +356,22 @@ function manageCameraPerspectives() {
     else if (activeMode === 'follow') {
         const speed = drone.velocity.length();
         
-        // Fixed close offset for immediate response — no lag
+        
         const distOffset = 5.0 + Math.min(speed * 1.5, 3.0);
         const heightOffset = 2.5 + Math.min(speed * 0.8, 2.0);
         
-        // Camera target: always behind drone in world space (+Z direction)
+        
         const targetPos = new THREE.Vector3(
             drone.mesh.position.x,
             drone.mesh.position.y + heightOffset,
             drone.mesh.position.z + distOffset
         );
         
-        // Fast lerp — at 0.15, 85% of gap closed in ~12 frames (0.2s at 60fps)
+        
         const lerpFactor = Math.min(0.12 + speed * 0.06, 0.22);
         camera.position.lerp(targetPos, lerpFactor);
         
-        // Look directly at drone (no look-ahead — prevents sway when camera is behind)
+        
         camera.lookAt(drone.mesh.position.x, drone.mesh.position.y + 0.3, drone.mesh.position.z);
     } 
     else if (activeMode === 'longshot') {
