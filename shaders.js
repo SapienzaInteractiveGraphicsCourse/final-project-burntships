@@ -1,7 +1,3 @@
-/**
- * Shaders Module - Partner B
- * Custom GLSL Programmable Shader Pipeline
- */
 
 const EnergyShieldShader = {
     // Vertex Shader: Projects local coordinates into camera screen clip coordinates
