@@ -1,9 +1,3 @@
-/**
- * Scene Configuration Module - Partner B
- * Handles Illuminations, Procedural Maps, and Obstacle Geometries
- */
-
-// Global arrays so Partner A's app loop can read and modify things easily
 let deckLights = [];
 let ambientParticles = [];
 
@@ -13,10 +7,6 @@ let obstacleData = {
   rings: [],    // will store {position, radius, normal, scored}
 };
 
-/**
- * Advanced Lighting Topology Array
- * Injects massive light pools to maximize scene clarity and crisp shadows
- */
 function setupLightingArray() {
     // 1. Sky Hemisphere Light — cooler tint for cyberpunk atmosphere
     const hemiLight = new THREE.HemisphereLight(0x3388ff, 0x111a33, 0.8);
@@ -57,10 +47,6 @@ function setupLightingArray() {
     });
 }
 
-/**
- * Laboratory Deck Generation Pipeline
- * Generates high-performance grid texture maps programmatically in memory
- */
 function setupLabEnvironment() {
     // ===== FLOOR =====
     const size = 512;
@@ -83,7 +69,7 @@ function setupLabEnvironment() {
     textureCanvas.wrapT = THREE.RepeatWrapping;
     textureCanvas.repeat.set(16, 16);
 
-    // ===== PROCEDURAL NORMAL MAP (different pattern from color map) =====
+    // ===== PROCEDURAL NORMAL MAP
     const nmSize = 256;
     const nmCanvas = document.createElement('canvas');
     nmCanvas.width = nmSize;
@@ -202,7 +188,7 @@ function setupLabEnvironment() {
         scene.add(glow);
     }
 
-    // ===== STARFIELD BACKGROUND =====
+    
     const starCount = 800;
     const starGeo = new THREE.BufferGeometry();
     const starPos = new Float32Array(starCount * 3);
@@ -246,10 +232,6 @@ function setupLabEnvironment() {
     ambientParticles.push(pSys);
 }
 
-/**
- * Complex Obstacle Course Generator
- * Spawns structural hazards to turn the room into an interactive playground
- */
 function setupObstacleCourse() {
     // Shared materials for the course obstacles
     const columnGeo = new THREE.CylinderGeometry(0.8, 1.2, 8, 6);
@@ -307,13 +289,7 @@ function setupObstacleCourse() {
     });
 }
 
-/**
- * Animates ambient floating particles — called from main loop
- */
-/**
- * Animates rings (rotation + bobbing) and column neon bands (pulsing glow)
- * Called from main loop — requires obstacleData.rings to store meshes
- */
+
 function updateObstacleAnimations(dt, time) {
     // Animate rings: gentle rotation + vertical bobbing
     obstacleData.rings.forEach((ring, i) => {
