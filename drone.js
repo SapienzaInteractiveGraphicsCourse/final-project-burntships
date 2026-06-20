@@ -1,5 +1,5 @@
 /**
- * Drone Module - Partner A
+ * Drone Module
  * Implements Hierarchical 3D Assemblies & Kinematic Flight Vectors
  */
 
@@ -117,12 +117,6 @@ class CyberpunkDrone {
         });
     }
 
-    /**
-     * Updates local matrix transforms using time deltas to prevent frame-rate dependency
-     */
-/**
-     * Day 4 Updated Update Method: Integrates an Autopilot Boundary Safety Subsystem
-     */
     update(timeDelta) {
         const dt = Math.min(timeDelta * 0.001, 0.1); 
 
@@ -144,9 +138,7 @@ class CyberpunkDrone {
             this.velocity.lerp(this.targetVelocity, this.accelerationFactor);
             this.mesh.position.addScaledVector(this.velocity, dt * 60.0);
 
-            // =========================================================
-            // HARD BOUNDARY CAGE CLAMPING (COLLISION AVOIDANCE ALGORITHM)
-            // =========================================================
+            //collison avoidance
             const roomBoundaryX = 28.0;  // Half-width boundary of our 60x60 room plate
             const roomBoundaryZ = 28.0;  // Half-depth boundary of our 60x60 room plate
             const ceilingHeight = 15.0;  // Max structural ceiling altitude limit
