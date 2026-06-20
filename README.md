@@ -15,7 +15,7 @@ A real-time 3D cyberpunk drone flight simulator built with Three.js, featuring h
 |2|**Lights \& Textures**|8-light array (hemisphere, ambient, directional ×2, spot, point ×4) + procedural grid color map + procedural normal (bump) map|
 |3|**User Interaction**|WASD/arrows for flight, Q/E for altitude, Space for engine, C for camera, R for reset, ESC for kill switch + clickable HUD buttons + throttle slider + color configurator|
 |4|**Animations**|Rotor spin (frame-rate independent), ring bob + rotate, camera chase cam lerp, burst particles, floating score popups, ambient particle drift, Tween.js takeoff/landing|
-|5|**Report (5–10 pages)**|`IG\_Final\_Project\_Report.pdf` included in submission|
+|5|**Report (5–10 pages)**|`report.pdf` included in this repository|
 
 \---
 
@@ -89,6 +89,7 @@ IG Final Project Part B/
 ├── drone.js           # Hierarchical drone model and collision detection (Partner A)
 ├── sceneconfig.js     # Lighting array, procedural textures, obstacle course (Partner B)
 ├── shaders.js         # Custom GLSL programmable shader pipeline (Partner B)
+├── report.pdf         # Project report with full documentation
 └── README.md          # This file
 ```
 
